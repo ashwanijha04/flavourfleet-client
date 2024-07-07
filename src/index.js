@@ -8,7 +8,7 @@ import RestaurantList from './Components/RestaurantList';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <RestaurantList/>
+    <App/>
   </React.StrictMode>
 );
 
