@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Form, Button, Table } from 'react-bootstrap';
+import { Container, Row, Col, Form, Button, Table, Modal } from 'react-bootstrap';
 import axios from 'axios';
 
 const AdminPanel = () => {
@@ -11,6 +11,15 @@ const AdminPanel = () => {
     rating: '',
     imageUrl: ''
   });
+  const [selectedRestaurant, setSelectedRestaurant] = useState(null);
+  const [dishes, setDishes] = useState([]);
+  const [newDish, setNewDish] = useState({
+    name: '',
+    description: '',
+    price: '',
+    restaurantId: ''
+  });
+  const [showDishModal, setShowDishModal] = useState(false);
 
   useEffect(() => {
     fetchRestaurants();
@@ -18,7 +27,7 @@ const AdminPanel = () => {
 
   const fetchRestaurants = async () => {
     try {
-      const response = await axios.get('http://localhost:8081/api/restaurants');
+      const response = await axios.get('https://flavourfleet-server.onrender.com/api/restaurants');
       setRestaurants(response.data);
     } catch (error) {
       console.error('Error fetching restaurants:', error);
@@ -32,7 +41,7 @@ const AdminPanel = () => {
   const handleAddRestaurant = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:8081/api/restaurants', newRestaurant);
+      await axios.post('https://flavourfleet-server.onrender.com/api/restaurants', newRestaurant);
       setNewRestaurant({ name: '', address: '', cuisine: '', rating: '', imageUrl: '' });
       fetchRestaurants();
     } catch (error) {
@@ -42,10 +51,49 @@ const AdminPanel = () => {
 
   const handleDeleteRestaurant = async (id) => {
     try {
-      await axios.delete(`http://localhost:8081/api/restaurants/${id}`);
+      await axios.delete(`https://flavourfleet-server.onrender.com/api/restaurants/${id}`);
       fetchRestaurants();
     } catch (error) {
       console.error('Error deleting restaurant:', error);
+    }
+  };
+
+  const handleSelectRestaurant = async (restaurant) => {
+    setSelectedRestaurant(restaurant);
+    fetchDishes(restaurant._id);
+    setShowDishModal(true);
+  };
+
+  const fetchDishes = async (restaurantId) => {
+    try {
+      const response = await axios.get(`https://flavourfleet-server.onrender.com/api/restaurants/${restaurantId}/dishes`);
+      setDishes(response.data);
+    } catch (error) {
+      console.error('Error fetching dishes:', error);
+    }
+  };
+
+  const handleDishChange = (e) => {
+    setNewDish({ ...newDish, [e.target.name]: e.target.value });
+  };
+
+  const handleAddDish = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post(`https://flavourfleet-server.onrender.com/api/restaurants/${selectedRestaurant._id}/dishes`, newDish);
+      setNewDish({ name: '', description: '', price: '', restaurantId: '' });
+      fetchDishes(selectedRestaurant._id);
+    } catch (error) {
+      console.error('Error adding dish:', error);
+    }
+  };
+
+  const handleDeleteDish = async (dishId) => {
+    try {
+      await axios.delete(`https://flavourfleet-server.onrender.com/api/restaurants/${selectedRestaurant._id}/dishes/${dishId}`);
+      fetchDishes(selectedRestaurant._id);
+    } catch (error) {
+      console.error('Error deleting dish:', error);
     }
   };
 
@@ -135,8 +183,17 @@ const AdminPanel = () => {
                     <Button
                       variant="danger"
                       onClick={() => handleDeleteRestaurant(restaurant._id)}
+                      className="mr-2"
+                      size="sm"
                     >
                       Delete
+                    </Button>
+                    <Button
+                      variant="info"
+                      onClick={() => handleSelectRestaurant(restaurant)}
+                      size="sm"
+                    >
+                      Manage Dishes
                     </Button>
                   </td>
                 </tr>
@@ -145,6 +202,92 @@ const AdminPanel = () => {
           </Table>
         </Col>
       </Row>
+
+      {/* Modal for managing dishes */}
+      <Modal show={showDishModal} onHide={() => setShowDishModal(false)} size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>Manage Dishes for {selectedRestaurant && selectedRestaurant.name}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Row>
+            <Col md={6}>
+              <h3>Add New Dish</h3>
+              <Form onSubmit={handleAddDish}>
+                <Form.Group controlId="dishName">
+                  <Form.Label>Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="name"
+                    value={newDish.name}
+                    onChange={handleDishChange}
+                    required
+                  />
+                </Form.Group>
+                <Form.Group controlId="description">
+                  <Form.Label>Description</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="description"
+                    value={newDish.description}
+                    onChange={handleDishChange}
+                    required
+                  />
+                </Form.Group>
+                <Form.Group controlId="price">
+                  <Form.Label>Price</Form.Label>
+                  <Form.Control
+                    type="number"
+                    name="price"
+                    value={newDish.price}
+                    onChange={handleDishChange}
+                    step="0.01"
+                    required
+                  />
+                </Form.Group>
+                <Button variant="primary" type="submit" className="mt-3">
+                  Add Dish
+                </Button>
+              </Form>
+            </Col>
+            <Col md={6}>
+              <h3>Dishes</h3>
+              <Table striped bordered hover>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Price</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dishes.map((dish) => (
+                    <tr key={dish._id}>
+                      <td>{dish.name}</td>
+                      <td>{dish.description}</td>
+                      <td>${dish.price.toFixed(2)}</td>
+                      <td>
+                        <Button
+                          variant="danger"
+                          onClick={() => handleDeleteDish(dish._id)}
+                          size="sm"
+                        >
+                          Delete
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </Col>
+          </Row>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDishModal(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };

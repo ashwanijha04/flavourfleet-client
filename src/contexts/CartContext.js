@@ -11,7 +11,7 @@ export const CartProvider = ({ children }) => {
   useEffect(() => {
     const fetchCart = async () => {
       try {
-        const response = await axios.get('http://localhost:8081/api/cart');
+        const response = await axios.get('https://flavourfleet-server.onrender.com/api/cart');
         setCart(response.data || { items: [], total: 0 });
       } catch (error) {
         console.error('Error fetching cart:', error);

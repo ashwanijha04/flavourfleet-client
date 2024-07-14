@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Container, Row, Col, Card, Button, InputGroup, FormControl } from 'react-bootstrap';
 import { getDishesByRestaurant } from '../services/dishService';
-import { useCart } from '../context/CartContext';
+import { useCart } from '../contexts/CartContext';
 
 const DishList = () => {
   const { restaurantId } = useParams();

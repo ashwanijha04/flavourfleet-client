@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8081/api/restaurants';
+const API_URL = 'https://flavourfleet-server.onrender.com/api/restaurants';
 
 export const getRestaurants = async () => {
   try {
