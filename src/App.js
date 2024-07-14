@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Header from './components/Header';
-import RestaurantList from './components/RestaurantList';
-import DishList from './components/DishList';
-import Cart from './components/Cart';
-import AdminPanel from './components/AdminPanel';
-import Login from './components/Login';
-import Register from './components/Register'; // Add this import
-import { CartProvider } from './contexts/CartContext';
-import { AuthProvider } from './contexts/AuthContext';
+import Header from './components/Header.js';
+import RestaurantList from './components/RestaurantList.js';
+import DishList from './components/DishList.js';
+import Cart from './components/Cart.js';
+import AdminPanel from './components/AdminPanel.js';
+import Login from './components/Login.js';
+import Register from './components/Register.js'; // Add this import
+import { CartProvider } from './contexts/CartContext.js';
+import { AuthProvider } from './contexts/AuthContext.js';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const App = () => {
